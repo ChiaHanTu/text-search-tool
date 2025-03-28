@@ -1,4 +1,3 @@
-import svgLoader from 'vite-svg-loader';
 import tailwindcss from "@tailwindcss/vite";
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
@@ -16,23 +15,9 @@ export default defineNuxtConfig({
       ],
     },
   },
-  modules: ['@pinia/nuxt', '@vueuse/nuxt'],
   vite: {
     plugins: [
       tailwindcss(),
-      svgLoader({
-        svgoConfig: {
-          plugins: [
-            'removeXMLNS',
-            {
-              name: 'removeAttrs',
-              params: {
-                attrs: 'fill',
-              },
-            },
-          ],
-        },
-      }),
     ],
   },
   runtimeConfig: {
@@ -40,7 +25,7 @@ export default defineNuxtConfig({
       mapsKey: process.env.NUXT_GOOGLE_MAPS_API_KEY,
     },
   },
-  css: ['~/assets/scss/main.scss', '~/assets/main.css'],
+  css: ['~/assets/main.css'],
   devtools: { enabled: true },
   compatibilityDate: '2025-03-25',
 });
