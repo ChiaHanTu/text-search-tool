@@ -51,7 +51,7 @@ const search = async (pageToken?: string) => {
       searchResults.value = [...searchResults.value, ...data.places];
     }
 
-    if (data.nextPageToken && searchResults.value.length < 100) {
+    if (data.nextPageToken) {
       await search(data.nextPageToken);
     }
 
