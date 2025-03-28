@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
-// 搜尋條件
 interface SearchForm {
   keyword: string;
   includedType?: string;
@@ -30,11 +29,10 @@ const search = async (pageToken?: string) => {
       },
       body: JSON.stringify({
         textQuery: searchForm.value.keyword,
-        includedType: !!searchForm.value.includedType ? searchForm.value.includedType : undefined,
+        includedType: searchForm.value.includedType || undefined,
         strictTypeFiltering: !!searchForm.value.includedType,
         pageToken: pageToken
       }),
-      mode: 'cors'
     });
 
     if (!response.ok) {
@@ -45,17 +43,14 @@ const search = async (pageToken?: string) => {
 
     const data = await response.json();
 
-    // 如果是第一頁，清空之前的結果
     if (!pageToken) {
       searchResults.value = [];
     }
 
-    // 添加新的結果
     if (data.places) {
       searchResults.value = [...searchResults.value, ...data.places];
     }
 
-    // 如果有下一頁，繼續搜尋
     if (data.nextPageToken && searchResults.value.length < 100) {
       await search(data.nextPageToken);
     }
@@ -68,11 +63,11 @@ const search = async (pageToken?: string) => {
 </script>
 
 <template>
-  <div class="search-page">
-    <h1 class="text-2xl font-bold mb-4">
+  <div class="mx-auto p-5 max-w-7xl">
+    <h1 class="text-center text-2xl font-bold mb-4">
       Google Maps Text search API tool
     </h1>
-    <div class="search-form bg-[#f5f5f5]">
+    <div class="mb-8 p-5 rounded-lg bg-[#f5f5f5]">
       <div class="flex justify-center items-center gap-x-4">
         <div class="space-x-2">
           <label for="keyword">關鍵字</label>
@@ -81,7 +76,7 @@ const search = async (pageToken?: string) => {
             v-model="searchForm.keyword"
             type="text"
             placeholder="請輸入關鍵字"
-            class="bg-white px-3 py-2 rounded-xl focus:outline-none"
+            class="px-3 py-2 text-base bg-white border border-gray-300 rounded-md focus:border-blue-500 focus:outline-none"
           >
         </div>
         <div class="space-x-2">
@@ -91,7 +86,7 @@ const search = async (pageToken?: string) => {
             v-model="searchForm.includedType"
             type="text"
             placeholder="請輸入類型"
-            class="bg-white px-3 py-2 rounded-xl focus:outline-none"
+            class="px-3 py-2 text-base bg-white border border-gray-300 rounded-md focus:border-blue-500 focus:outline-none"
           >
           <a
             href="https://developers.google.com/maps/documentation/places/web-service/place-types?hl=zh-tw"
@@ -103,7 +98,7 @@ const search = async (pageToken?: string) => {
         </div>
 
         <button
-          class="px-4 py-2 rounded-xl bg-gray-300 cursor-pointer"
+          class="px-4 py-2 rounded-xl bg-gray-300 cursor-pointer hover:bg-gray-400 transition-colors"
           @click="() => search()"
         >
           搜尋
@@ -111,75 +106,30 @@ const search = async (pageToken?: string) => {
       </div>
     </div>
 
-    <div class="search-results">
-      <h2>搜尋結果 ({{ searchResults.length }})</h2>
-      <div class="results-list">
+    <div>
+      <h2 class="mb-5">
+        搜尋結果 ({{ searchResults.length }})
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         <div
           v-for="place in searchResults"
           :key="place.id"
-          class="result-item"
+          class="p-4 bg-white border border-gray-300 rounded-md"
         >
-          <h3>{{ place.displayName.text }}</h3>
-          <span>{{ place.formattedAddress }}</span>
-          <a>{{ place.googleMapsUri }}</a>
+          <h3 class="m-0 mb-2.5 text-base">
+            {{ place.displayName.text }}
+          </h3>
+          <span class="block text-sm text-gray-600 mb-2">{{ place.formattedAddress }}</span>
+          <a
+            :href="place.googleMapsUri"
+            class="text-blue-500 hover:text-blue-600"
+            target="_blank"
+          >
+            Maps 連結
+          </a>
         </div>
       </div>
     </div>
   </div>
 </template>
 
-<style lang="scss">
-.search-page {
-  margin: 0 auto;
-  padding: 20px;
-  max-width: 1200px;
-}
-
-.search-form {
-  margin-bottom: 30px;
-  padding: 20px;
-  border-radius: 8px;
-}
-
-.form-input {
-  padding: 8px 12px;
-  font-size: 16px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-
-  &:focus {
-    border-color: #4a90e2;
-    outline: none;
-  }
-}
-
-.search-results {
-  h2 {
-    margin-bottom: 20px;
-  }
-}
-
-.results-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 20px;
-}
-
-.result-item {
-  padding: 15px;
-  background: white;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-
-  h3 {
-    margin: 0 0 10px;
-    font-size: 16px;
-  }
-
-  p {
-    margin: 5px 0;
-    font-size: 14px;
-    color: #666;
-  }
-}
-</style>
